@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:testapp/models/todo.dart';
 
 class PopupForm extends StatefulWidget {
@@ -12,6 +13,7 @@ class PopupForm extends StatefulWidget {
 }
 
 class _PopupFormState extends State<PopupForm> {
+  final _formKey = GlobalKey<FormState>();
   var titleController = TextEditingController();
   var descriptionController = TextEditingController();
 
@@ -30,21 +32,38 @@ class _PopupFormState extends State<PopupForm> {
     Navigator.pop(context);
   }
 
+  void onFormSubmitted(value) {
+    if (_formKey.currentState!.validate()) {
+      _addTodo();
+    }
+  }
+
+  String? titleValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter a title";
+    }
+    return null;
+  }
+
   Widget _openDialog() {
     return AlertDialog(
       scrollable: true,
       title: const Text('Add task'),
       content: Center(
         child: Column(
+          key: _formKey,
           children: [
             TextFormField(
               controller: titleController,
+              validator: titleValidator,
+              onFieldSubmitted: onFormSubmitted,
               autofocus: true,
               decoration: const InputDecoration(
                   labelText: 'Title', icon: Icon(Icons.task)),
             ),
             TextFormField(
               controller: descriptionController,
+              onFieldSubmitted: onFormSubmitted,
               decoration: const InputDecoration(hintText: 'Description'),
             )
           ],
